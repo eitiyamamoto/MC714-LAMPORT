@@ -35,11 +35,12 @@ public class RMIClient {
         }
 
         try {
-            Message message = server.receive("Test", 1);
-            System.out.println("Message received: " + message.getMessage() + " Time: " + message.getTime());
+            Message message = new Message(1, "Test");
+            Message messageReceived = server.send(message);
+            System.out.println("Message sent: " + messageReceived.getMessage() + " Time: " + messageReceived.getTime());
         } catch (Exception e) {
             System.out.println("Exception " + e);
-            System.exit(1);
+            System.exit(0);
         }
     }
 }

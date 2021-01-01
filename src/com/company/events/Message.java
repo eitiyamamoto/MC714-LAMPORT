@@ -7,6 +7,14 @@ public class Message implements Serializable {
     private int time;
     private String message;
 
+    public Message() {
+    }
+
+    public Message(int time, String message) {
+        this.time = time;
+        this.message = message;
+    }
+
     public int getTime() {
         return time;
     }

@@ -7,5 +7,5 @@ import java.rmi.RemoteException;
 
 public interface ServerInterface extends Remote {
 
-    public Message receive(String message, Integer timestamp) throws RemoteException;
+    public Message send(Message message) throws RemoteException;
 }
