@@ -34,6 +34,7 @@ public class MessangerMain {
         System.out.println("Registering as: " + name);
         RMIServer myServer;
         try {
+            LocateRegistry.createRegistry(port);
             myServer = new RMIServer();
             Naming.rebind(name, myServer);
             System.out.println(name + " ready...");
