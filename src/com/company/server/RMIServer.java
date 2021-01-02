@@ -17,16 +17,16 @@ public class RMIServer extends UnicastRemoteObject implements ServerInterface {
 
     @Override
     public Message send(Message message) throws RemoteException {
-        Message messageEvent = new Message();
-        messageEvent.setMessage(message.getMessage());
+        // Update local time and adjust if necessary
         int timestamp = message.getTime();
-        messageEvent.setTime(timestamp);
-        if (timestamp > time) {
-            time = timestamp;
-        }
         time++;
-        System.out.println("Received message: " + messageEvent.getMessage() + " at time : " + messageEvent.getTime());
-        return messageEvent;
+        if (timestamp > time) {
+            time = timestamp + 1;
+        } else {
+            message.setTime(time);
+        }
+        System.out.println("Received message: " + message.getMessage() + " at time : " + message.getTime());
+        return message;
     }
 
     public Message sendoToAnotherServer(String text, ServerInterface anotherServer) throws RemoteException {
