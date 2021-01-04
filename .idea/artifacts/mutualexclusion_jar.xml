@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="mutualexclusion:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/mutualexclusion_jar</output-path>
+    <root id="archive" name="mutualexclusion.jar">
+      <element id="module-output" name="mutualexclusion" />
+    </root>
+  </artifact>
+</component>

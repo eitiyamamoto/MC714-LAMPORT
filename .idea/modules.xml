@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Lamport.iml" filepath="$PROJECT_DIR$/Lamport.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mutualexclusion/mutualexclusion.iml" filepath="$PROJECT_DIR$/mutualexclusion/mutualexclusion.iml" />
     </modules>
   </component>
 </project>
