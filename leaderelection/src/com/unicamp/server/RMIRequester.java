@@ -23,7 +23,7 @@ public class RMIRequester extends UnicastRemoteObject implements RequesterInterf
         this.requesting = false;
     }
 
-    public int send(int id, MessageTypeEnum message) throws RemoteException {
+    public int send(int originId, int receiverId, MessageTypeEnum message) throws RemoteException {
         System.out.println("Sendind message " + message.name() + " to ID= " + id);
 
         switch message:
@@ -39,5 +39,27 @@ public class RMIRequester extends UnicastRemoteObject implements RequesterInterf
         default:
             System.out.println("Invalid message: " + message.name());
             break;
+    }
+
+    public int receive(int senderId, int receiverId, MessageTypeEnum message) {
+        switch message {
+            case OK:
+                return 1;
+            case PING:
+                return 1;
+            case CLAIM_LEADER:
+                return 1;
+            case ASK_FOR_LEADER:
+                // Responde OK para o processo que chamou
+                sendOkMessage(senderId);
+                // Cria um array apenas com os ids maiores que o id recebido
+
+                ArrayList<Integer> greaterIds = getGreaterIds(receiverId);
+                askForLeader(greaterIds);
+                return 1;
+            default:
+                System.out.println("Invalid message: " + message.name());
+                return 0;
+        }
     }
 }
