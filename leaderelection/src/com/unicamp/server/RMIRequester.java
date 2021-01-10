@@ -23,8 +23,8 @@ public class RMIRequester extends UnicastRemoteObject implements RequesterInterf
         this.requesting = false;
     }
 
-    public int send(int originId, int receiverId, MessageTypeEnum message) throws RemoteException {
-        System.out.println("Sendind message " + message.name() + " to ID= " + id);
+    public int send(int senderId, int receiverId, MessageTypeEnum message) throws RemoteException {
+        System.out.println("Sendind message " + message.name() + " to ID= " + senderId);
 
         switch message {
 
