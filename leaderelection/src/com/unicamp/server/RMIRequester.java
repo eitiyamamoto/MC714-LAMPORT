@@ -26,19 +26,20 @@ public class RMIRequester extends UnicastRemoteObject implements RequesterInterf
     public int send(int originId, int receiverId, MessageTypeEnum message) throws RemoteException {
         System.out.println("Sendind message " + message.name() + " to ID= " + id);
 
-        switch message:
+        switch message {
 
-        case OK:
-            break;
-        case PING:
-            break;
-        case CLAIM_LEADER:
-            break;
-        case ASK_FOR_LEADER:
-            break;
-        default:
-            System.out.println("Invalid message: " + message.name());
-            break;
+            case OK:
+                return 1;
+            case PING:
+                return 1;
+            case CLAIM_LEADER:
+                return 1;
+            case ASK_FOR_LEADER:
+                return 1;
+            default:
+                System.out.println("Invalid message: " + message.name());
+                return 0;
+        }
     }
 
     public int receive(int senderId, int receiverId, MessageTypeEnum message) {
