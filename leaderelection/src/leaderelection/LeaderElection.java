@@ -18,6 +18,7 @@ public class Election {
     ArrayList<Integer> ids = new ArrayList<>();
 
     public void startElection(int id) {
+        System.out.println("Election started!");
         // envia mensagem de inicio de eleição para todos os processos com id maior de quem iniciou
 
         // Cria um array apenas com os ids maiores que o id recebido
@@ -28,7 +29,7 @@ public class Election {
     public void askForLeader(ArrayList<Integer> ids) {
 
         // Envia mensagem para todos os ids maiores que quem chamou
-        int ret = send(ids);
+        int ret = send(ids, MessageTypeEnum.ASK_FOR_LEADER);
 
         if (ret == 1) {
             // Caso ao menos um processo esteja ativo, acabou o trabalho do processo menor
@@ -48,6 +49,7 @@ public class Election {
 
             if (!isLeaderUp) {
                 // Se o lider não esta respondendo, chama eleições
+                System.out.println("Leader not responding. Starting election.")
                 boolean atLeatOneAns = startElection(this.id);
 
                 if (!atLeatOneAns) {
@@ -62,10 +64,10 @@ public class Election {
     }
 
     /** Envia mensagem para uma lista de ids */
-    public int send(ArrayList<Integer> ids) {
+    public int send(ArrayList<Integer> ids, MessageTypeEnum message) {
 
         for (int i = 0; i<ids.size(); i++) {
-            int ret = send(i);
+            int ret = send(i, message);
 
             if (ret == 1) {
                 return 1;
@@ -74,7 +76,7 @@ public class Election {
     }
 
     /** Envia mensagem para um id */
-    public int send(int id);
+    public int send(int id, MessageTypeEnum message);
 
     public int receivePing() {
         return 1;

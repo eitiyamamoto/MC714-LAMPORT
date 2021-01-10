@@ -23,89 +23,21 @@ public class RMIRequester extends UnicastRemoteObject implements RequesterInterf
         this.requesting = false;
     }
 
-    public void addRequester(RequesterInterface requesterInterface) {
-        requesterInterfaces.add(requesterInterface);
-    }
+    public int send(int id, MessageTypeEnum message) throws RemoteException {
+        System.out.println("Sendind message " + message.name() + " to ID= " + id);
 
-    @Override
-    public void requestAccess(int timestamp, RequesterInterface requesterInterface) throws RemoteException {
-        updateTime(timestamp);
-        // If not accessing and not requesting, we can grant permission
-        if (!accessing && !requesting) {
-            requesterInterface.grantAccess(time);
-            System.out.println("Granted access at time: " + time);
-            return;
-        }
+        switch message:
 
-        // If we are already accessing, put requester in the queue
-        if (accessing) {
-            requestingList.add(requesterInterface);
-            System.out.println("Request received, but I'm already accessing at time: " + time);
-            return;
-        }
-
-        // If we are also requesting, the oldest win
-        if (requesting) {
-            if (timestamp < requestTime) {
-                // Incoming request is older, so I will grant permission
-                requesterInterface.grantAccess(time);
-                System.out.println("Older request received, so I'm granting access at time: " + time);
-            } else {
-                // I'm older than the incoming request, so I put request in the queue
-                requestingList.add(requesterInterface);
-                System.out.println("Newer request received, so I'm putting it in a queue at time: " + time);
-            }
-        }
-    }
-
-    @Override
-    public void grantAccess(int timestamp) throws RemoteException {
-        updateTime(timestamp);
-        grantsReceived++;
-        if (grantsReceived == requesterInterfaces.size()) {
-            accessing = true;
-            requesting = false;
-            System.out.println("Access granted with " + grantsReceived + " grants received at time: " + time);
-            grantsReceived = 0;
-        } else {
-            System.out.println("Received " + grantsReceived + " grants at time: " + time);
-        }
-    }
-
-    public void requestAccess() throws RemoteException {
-        time++;
-        if (accessing) {
-            System.out.println("Access already granted!");
-            return;
-        }
-        requestTime = time;
-        requesting = true;
-        grantsReceived = 0;
-        for (RequesterInterface requesterInterface : requesterInterfaces) {
-            requesterInterface.requestAccess(requestTime, this);
-        }
-    }
-
-    public void releaseAccess() throws RemoteException {
-        time++;
-        if (!accessing) {
-            System.out.println("No access granted");
-            return;
-        }
-
-        // Remove access and grant access to all request in the que
-        accessing = false;
-        for (RequesterInterface requesterInterface : requestingList) {
-            requesterInterface.grantAccess(time);
-        }
-        requestingList.clear();
-        System.out.println("Access released at time: " + time);
-    }
-
-    private void updateTime(int timestamp) {
-        time++;
-        if (timestamp > time) {
-            time = timestamp + 1;
-        }
+        case OK:
+            break;
+        case PING:
+            break;
+        case CLAIM_LEADER:
+            break;
+        case ASK_FOR_LEADER:
+            break;
+        default:
+            System.out.println("Invalid message: " + message.name());
+            break;
     }
 }
