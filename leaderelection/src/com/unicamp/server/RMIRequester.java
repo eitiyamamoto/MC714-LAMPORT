@@ -6,26 +6,54 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
-public class RMIRequester extends UnicastRemoteObject {
-    int ansCount = 0;
-    public RMIRequester leader;
-    public boolean isUp;
-    public ArrayList<RMIRequester> requesters = new ArrayList<>();
-    public ArrayList<RMIRequester> allRequesters = new ArrayList<>();
+public class RMIRequester extends UnicastRemoteObject implements RemoteInterface {
+    private int ansCount = 0;
+    private RemoteInterface leader = null;
+    private boolean isUp = false;
+    private ArrayList<RemoteInterface> requesters = new ArrayList<>();
+    private ArrayList<RemoteInterface> allRequesters = new ArrayList<>();
 
     public RMIRequester() throws RemoteException {
         super();
         this.isUp = true;
     }
 
-    public void addRequester(RMIRequester requester, boolean isGreater) {
+    @Override
+    public boolean getIsUp() throws  RemoteException {     return this.getIsUp();    }
+    public void setIsUp(boolean isUp) throws  RemoteException{ this.isUp = isUp;}
+
+    @Override
+    public void setLeader(RemoteInterface leader) throws  RemoteException {
+        this.leader = leader;
+    }
+
+    public RemoteInterface getLeader() throws  RemoteException { return this.leader;}
+
+    public void addRequester(RemoteInterface requester, boolean isGreater) throws  RemoteException {
         if(isGreater) {
             requesters.add(requester);
         }
          allRequesters.add(requester);
+
+        if(this.leader == null) {
+            if(requester.getLeader() == null) {
+                this.leader = requester;
+            } else {
+                this.leader = requester.getLeader();
+            }
+        }
+    }
+    /** Inicia eleição */
+    public void startElection() throws RemoteException {
+        System.out.println("Election started by ID= " + this.hashCode() + "!");
+
+        // envia mensagem de inicio de eleição para todos os processos com id maior de quem iniciou
+        for (RemoteInterface requester : this.requesters) {
+            requester.receive(requester, MessageTypeEnum.ASK_FOR_LEADER);
+        }
     }
 
-    public int send(RMIRequester receiver, MessageTypeEnum message) throws RemoteException {
+    public int send(RemoteInterface receiver, MessageTypeEnum message) throws RemoteException {
         System.out.println("Sendind message " + message.name() + " to ID= " + receiver.hashCode());
 
         switch (message) {
@@ -33,7 +61,7 @@ public class RMIRequester extends UnicastRemoteObject {
                 receiver.receive(this, MessageTypeEnum.OK);
                 return 1;
             case CLAIM_LEADER:
-                claimLeader(this);
+                claimLeader();
                 return 1;
             case ASK_FOR_LEADER:
                 askForLeader(receiver);
@@ -44,7 +72,7 @@ public class RMIRequester extends UnicastRemoteObject {
         }
     }
 
-    public int receive(RMIRequester sender, MessageTypeEnum message) throws RemoteException {
+    public int receive(RemoteInterface sender, MessageTypeEnum message) throws RemoteException {
         System.out.println("Message received:" + message.name() + " from ID= " + sender.hashCode());
         switch (message) {
             case OK:
@@ -64,24 +92,18 @@ public class RMIRequester extends UnicastRemoteObject {
     }
 
     /** Envia para todos os ids da lista a mensagem dizendo que é o lider */
-    private void claimLeader(RMIRequester leader) throws RemoteException {
-        for (RMIRequester requester : leader.allRequesters) {
+    public void claimLeader() throws RemoteException {
+        for (RemoteInterface requester : this.allRequesters) {
             requester.receive(this, MessageTypeEnum.CLAIM_LEADER);
         }
     }
 
-    public void sendOkMessage(RMIRequester receiver, RMIRequester sender) throws RemoteException {
+    public void sendOkMessage(RemoteInterface receiver, RemoteInterface sender) throws RemoteException {
         sender.send(receiver, MessageTypeEnum.OK);
     }
 
-    /** Retorna um array com os ids maiores do que recebido por parametro */
-    public ArrayList<RMIRequester> getGreaterIds(RMIRequester requester) {
-
-        return requester.requesters;
-    }
-
     /** Envia mensagem buscando um processo de id maior para ser o lider */
-    public void askForLeader(RMIRequester sender) throws RemoteException {
+    public void askForLeader(RemoteInterface sender) throws RemoteException {
         // Envia mensagem para todos os ids maiores que quem chamou
         int ret = receive(sender, MessageTypeEnum.ASK_FOR_LEADER);
 

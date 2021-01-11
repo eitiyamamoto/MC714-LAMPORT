@@ -1,6 +1,7 @@
 package leaderelection;
 
 import com.unicamp.server.RMIRequester;
+import com.unicamp.server.RemoteInterface;
 
 import java.io.Console;
 import java.rmi.Naming;
@@ -13,17 +14,6 @@ public class LeaderElection {
 
     private static final String NAME = "Requester";
 
-
-    /** Inicia eleição */
-    public static void startElection(RMIRequester electionCaller) throws RemoteException {
-        System.out.println("Election started by ID= " + electionCaller.hashCode() + "!");
-
-        // envia mensagem de inicio de eleição para todos os processos com id maior de quem iniciou
-        for (RMIRequester requester : electionCaller.requesters) {
-            requester.receive(requester, MessageTypeEnum.ASK_FOR_LEADER);
-        }
-    }
-
     private static void registerRequester(Console console, RMIRequester requester) {
         String host = console.readLine("Type host: ");
         String name = console.readLine("Type name: ");
@@ -31,7 +21,7 @@ public class LeaderElection {
         String connectionUrl = "rmi://" + host + "/" + name;
 
         try {
-            RMIRequester requester1 = (RMIRequester) Naming.lookup(connectionUrl);
+            RemoteInterface requester1 = (RemoteInterface) Naming.lookup(connectionUrl);
 
             if (isGreater.equals("y")) {
                 requester.addRequester(requester1, true);
@@ -45,11 +35,19 @@ public class LeaderElection {
     }
 
     private static void shutDownInstance(RMIRequester requester) {
-        requester.isUp = false;
+        try {
+            requester.setIsUp(false);
+        } catch (Exception e) {
+            e.printStackTrace();;
+        }
     }
 
     private static void turnOnInstance(RMIRequester requester) {
-        requester.isUp = true;
+        try {
+            requester.setIsUp(true);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String argv[]) {
@@ -111,14 +109,14 @@ public class LeaderElection {
                     System.out.println("Invalid input");
             }
             try {
-                if (!requester.leader.isUp) {
-                    // Se o lider não esta respondendo, chama eleições
-                    System.out.println("Leader not responding. Starting election.");
-                    startElection(requester);
+                if(requester.getLeader() != null) {
+                    if (!requester.getLeader().getIsUp()) {
+                        // Se o lider não esta respondendo, chama eleições
+                        System.out.println("Leader not responding. Starting election.");
+                        requester.startElection();
+                    }
                 }
-                // espera 10s para enviar um ping novamente
-                sleep(10000);
-                }
+            }
             catch (Exception e) {
                 e.printStackTrace();
             }
