@@ -36,6 +36,7 @@ public class LeaderElection {
 
     private static void shutDownInstance(RMIRequester requester) {
         try {
+            System.out.println("Shuting down instance: " + requester.hashCode());
             requester.setIsUp(false);
         } catch (Exception e) {
             e.printStackTrace();;
@@ -44,6 +45,7 @@ public class LeaderElection {
 
     private static void turnOnInstance(RMIRequester requester) {
         try {
+            System.out.println("Turning up instance: " + requester.hashCode());
             requester.setIsUp(true);
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -78,8 +80,13 @@ public class LeaderElection {
     }
 
     public static void mainApplication(RMIRequester requester) {
+        try {
+            requester.setLeader(requester);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
 
-            Console console = System.console();
+        Console console = System.console();
             if (console == null) {
                 System.out.println("Problem to get console");
                 System.exit(1);
@@ -101,6 +108,20 @@ public class LeaderElection {
                     break;
                 case "sd":
                     shutDownInstance(requester);
+                    break;
+                case "isup":
+                    try {
+                        System.out.println(requester.getIsUp());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case "le":
+                    try{
+                        System.out.println(requester.getLeader().hashCode());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "q":
                     System.out.println("bye!");

@@ -10,8 +10,8 @@ public interface RemoteInterface extends Remote {
     public int send(RemoteInterface receiver, MessageTypeEnum message) throws RemoteException;
     public int receive(RemoteInterface sender, MessageTypeEnum message) throws RemoteException;
     public void claimLeader() throws RemoteException;
-    public void sendOkMessage(RemoteInterface receiver, RemoteInterface sender) throws RemoteException;
-    public void askForLeader(RemoteInterface sender) throws RemoteException;
+    public int receiveOkMessage(RemoteInterface sender) throws RemoteException;
+    public void askedForLeader(RemoteInterface sender) throws RemoteException;
     public boolean getIsUp() throws  RemoteException;
     public void setIsUp(boolean isUp) throws  RemoteException;
     public void setLeader(RemoteInterface leader) throws  RemoteException;

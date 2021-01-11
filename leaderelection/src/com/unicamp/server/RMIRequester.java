@@ -19,7 +19,7 @@ public class RMIRequester extends UnicastRemoteObject implements RemoteInterface
     }
 
     @Override
-    public boolean getIsUp() throws  RemoteException {     return this.getIsUp();    }
+    public boolean getIsUp() throws  RemoteException {     return this.isUp;    }
     public void setIsUp(boolean isUp) throws  RemoteException{ this.isUp = isUp;}
 
     @Override
@@ -46,10 +46,11 @@ public class RMIRequester extends UnicastRemoteObject implements RemoteInterface
     /** Inicia eleição */
     public void startElection() throws RemoteException {
         System.out.println("Election started by ID= " + this.hashCode() + "!");
+        this.leader = this;
 
         // envia mensagem de inicio de eleição para todos os processos com id maior de quem iniciou
         for (RemoteInterface requester : this.requesters) {
-            requester.receive(requester, MessageTypeEnum.ASK_FOR_LEADER);
+            requester.askedForLeader(this);
         }
     }
 
@@ -64,7 +65,7 @@ public class RMIRequester extends UnicastRemoteObject implements RemoteInterface
                 claimLeader();
                 return 1;
             case ASK_FOR_LEADER:
-                askForLeader(receiver);
+                askedForLeader(receiver);
                 return 1;
             default:
                 System.out.println("Invalid message: " + message.name());
@@ -82,8 +83,8 @@ public class RMIRequester extends UnicastRemoteObject implements RemoteInterface
                 return 1;
             case ASK_FOR_LEADER:
                 // Responde OK para o processo que chamou
-                sendOkMessage(sender, this);
-                askForLeader(this);
+                receiveOkMessage(this);
+                askedForLeader(this);
                 return 1;
             default:
                 System.out.println("Invalid message: " + message.name());
@@ -98,21 +99,22 @@ public class RMIRequester extends UnicastRemoteObject implements RemoteInterface
         }
     }
 
-    public void sendOkMessage(RemoteInterface receiver, RemoteInterface sender) throws RemoteException {
-        sender.send(receiver, MessageTypeEnum.OK);
+    public int receiveOkMessage(RemoteInterface sender) throws RemoteException {
+        this.leader = sender;
+        return 1;
     }
 
     /** Envia mensagem buscando um processo de id maior para ser o lider */
-    public void askForLeader(RemoteInterface sender) throws RemoteException {
+    public void askedForLeader(RemoteInterface sender) throws RemoteException {
         // Envia mensagem para todos os ids maiores que quem chamou
-        int ret = receive(sender, MessageTypeEnum.ASK_FOR_LEADER);
+        int ret = sender.receiveOkMessage(this);
 
         if (ret == 1) {
             // Caso ao menos um processo esteja ativo, acabou o trabalho do processo menor
             ansCount++;
         } else {
             // Caso não haja resposta de um processo de id maior, este é o novo líder
-            send(this, MessageTypeEnum.CLAIM_LEADER);
+            this.claimLeader();
         }
     }
 
