@@ -1,4 +1,5 @@
-public class MessageTypeEnum {
+package leaderelection;
+public enum MessageTypeEnum {
     OK,
     CLAIM_LEADER,
     PING,
