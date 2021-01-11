@@ -11,14 +11,18 @@ public class RMIRequester extends UnicastRemoteObject {
     public RMIRequester leader;
     public boolean isUp;
     public ArrayList<RMIRequester> requesters = new ArrayList<>();
+    public ArrayList<RMIRequester> allRequesters = new ArrayList<>();
 
     public RMIRequester() throws RemoteException {
         super();
         this.isUp = true;
     }
 
-    public void addRequester(RMIRequester requester) {
-        requesters.add(requester);
+    public void addRequester(RMIRequester requester, boolean isGreater) {
+        if(isGreater) {
+            requesters.add(requester);
+        }
+         allRequesters.add(requester);
     }
 
     public int send(RMIRequester receiver, MessageTypeEnum message) throws RemoteException {
@@ -61,8 +65,7 @@ public class RMIRequester extends UnicastRemoteObject {
 
     /** Envia para todos os ids da lista a mensagem dizendo que é o lider */
     private void claimLeader(RMIRequester leader) throws RemoteException {
-        for (RMIRequester requester : leader.requesters) {
-            //PRECISA CRIAR UMA LISTA NO RMIREQUESTER DOS IDS MENORES
+        for (RMIRequester requester : leader.allRequesters) {
             requester.receive(this, MessageTypeEnum.CLAIM_LEADER);
         }
     }

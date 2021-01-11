@@ -27,11 +27,17 @@ public class LeaderElection {
     private static void registerRequester(Console console, RMIRequester requester) {
         String host = console.readLine("Type host: ");
         String name = console.readLine("Type name: ");
+        String isGreater = console.readLine("Is greater: ");
         String connectionUrl = "rmi://" + host + "/" + name;
 
         try {
             RMIRequester requester1 = (RMIRequester) Naming.lookup(connectionUrl);
-            requester.addRequester(requester1);
+
+            if (isGreater.equals("y")) {
+                requester.addRequester(requester1, true);
+            } else if (isGreater.equals("n")) {
+                requester.addRequester(requester1, false);
+            }
             System.out.println("Server correctly connected!");
         } catch (Exception e) {
             e.printStackTrace();
